@@ -28,8 +28,6 @@ class ButtonListener(ControlListener):
             mode = 2
         elif e.getName() == "empty":
             mode = 3
-        elif e.getName() == "save":
-            grid_to_text()
         elif e.getName() == "clear":
             clear()
 
@@ -75,11 +73,6 @@ def setup():
         80, 40).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER)
     cp5.getController("empty").addListener(ButtonListener())
     
-    cp5.addBang("save").setPosition(870, 0).setSize(
-        80, 40).getCaptionLabel().align(ControlP5.CENTER, ControlP5.CENTER)
-    cp5.getController("save").addListener(ButtonListener())
-    
-    
     textFont(font)
     
     cp5.getController("width").addListener(TextListener())
@@ -109,9 +102,6 @@ def draw():
 # Initalizes our grid to have a ring of walls and blank space
 def setupGrid():
     global gridColour, saveGrid, num_cols, num_rows, boxWidth, boxHeight, output, animation_time
-    
-    # Create our writer
-    output = createWriter("/Users/jd/Documents/GitHub/CISC352_Assignment2/Pathfinding/pathfinding_a.txt")
     
     # Offset for grid because of gui
     gridColour = [[0 for x in range(num_rows)] for x in range(num_cols)] 
@@ -153,12 +143,25 @@ def draw_grid():
                     gridColour[i][j] = color(255);
                     saveGrid[i][j] = '_'
                     
-def grid_to_text():
+def grid_to_text(selection):
     global num_cols, num_rows, saveGrid, output
-    for i in range(num_rows):
+    
+    if selection == None:
+        println("Window was closed or the user hit cancel.")
+        return
+    else:
+        println("User selected " + selection.getAbsolutePath())
+        if selection.getAbsolutePath()[-4:] != ".txt":
+            output = createWriter(selection.getAbsolutePath() + ".txt")
+        else:
+            output = createWriter(selection.getAbsolutePath())
+  
+                 
+    
+    for i in range(num_cols):
         line = ""
-        for j in range(num_cols):
-            line += saveGrid[i][j];
+        for j in range(num_rows):
+            line += saveGrid[j][i];
         output.println(line);
         print(line)
     output.flush() #  Writes the remaining data to the file
@@ -195,8 +198,10 @@ def keyPressed():
         s.daemon = True
         s.start()
         
+    elif (key == 'p'):
+        selectOutput("Choose where to save output file", "grid_to_text")
         
-  
+        
 
 def mousePressed():
     draw_grid()
